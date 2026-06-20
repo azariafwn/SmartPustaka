@@ -66,3 +66,13 @@ function createResponse(outputObj, status, messageOrAction) {
     outputObj.setContent(JSON.stringify(responseBody));
     return outputObj;
 }
+
+// --- FUNGSI FRONTEND (UI) ---
+
+// Fungsi khusus GAS untuk merender halaman HTML saat URL Web App dibuka
+function doGet(e) {
+    // Memanggil file Index.html untuk ditampilkan
+    return HtmlService.createHtmlOutputFromFile('Index')
+        .setTitle('SmartPustaka Admin') // Mengubah judul tab browser
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1'); // Mendukung responsivitas di HP
+}
