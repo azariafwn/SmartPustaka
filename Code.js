@@ -110,6 +110,53 @@ function getTableData(sheetName) {
     return []; // Kembalikan array kosong jika sheet hanya berisi header
 }
 
+// --- FUNGSI RELASI DATA (JOIN) ---
+
+// Mengambil data transaksi dan menerjemahkan UID menjadi Nama/Judul [cite: 2, 11]
+function getTransaksiDataJoined() {
+    const sheetTransaksi = getSheetByName("Transaksi");
+    const sheetBuku = getSheetByName("Buku");
+    const sheetAnggota = getSheetByName("Anggota");
+
+    if (!sheetTransaksi || !sheetBuku || !sheetAnggota) return [];
+
+    const dataTransaksi = sheetTransaksi.getDataRange().getDisplayValues();
+    const dataBuku = sheetBuku.getDataRange().getDisplayValues();
+    const dataAnggota = sheetAnggota.getDataRange().getDisplayValues();
+
+    if (dataTransaksi.length <= 1) return []; // Jika hanya ada header
+
+    // Membuat kamus (dictionary) untuk pencarian instan
+    const mapBuku = {};
+    for (let i = 1; i < dataBuku.length; i++) {
+        mapBuku[dataBuku[i][0]] = dataBuku[i][1]; // Format: { "BUKU-A111": "Bumi Manusia" }
+    }
+
+    const mapAnggota = {};
+    for (let i = 1; i < dataAnggota.length; i++) {
+        mapAnggota[dataAnggota[i][0]] = dataAnggota[i][1]; // Format: { "USER-X999": "Budi" }
+    }
+
+    // Melakukan penggabungan (Join)
+    const result = [];
+    // Looping dimulai dari 1 untuk melompati baris header
+    for (let i = 1; i < dataTransaksi.length; i++) {
+        const row = dataTransaksi[i];
+        const idTrx = row[0];
+        const waktu = row[1];
+        const uidAnggota = row[2];
+        const uidBuku = row[3];
+        const status = row[4];
+
+        // Terjemahkan UID, jika tidak ditemukan beri label (Tidak Terdaftar)
+        const namaAnggota = mapAnggota[uidAnggota] || uidAnggota + " (Tidak Terdaftar)";
+        const judulBuku = mapBuku[uidBuku] || uidBuku + " (Tidak Terdaftar)";
+
+        result.push([idTrx, waktu, namaAnggota, judulBuku, status]);
+    }
+    
+    return result;
+}
 
 // --- FUNGSI MANAJEMEN PENDAFTARAN (DIPANGGIL OLEH WEB) ---
 
