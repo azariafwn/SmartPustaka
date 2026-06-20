@@ -92,3 +92,57 @@ function getTableData(sheetName) {
     }
     return []; // Kembalikan array kosong jika sheet hanya berisi header
 }
+
+
+// --- FUNGSI MANAJEMEN PENDAFTARAN (DIPANGGIL OLEH WEB) ---
+
+// Mengubah mode alat dari web (misal: ke REG_BOOK atau REG_MEMBER)
+function setSystemMode(mode) {
+    const configSheet = getSheetByName("Config");
+    configSheet.getRange("A2").setValue(mode);
+    configSheet.getRange("B2").clearContent(); // Bersihkan memori UID lama agar bersih
+    return "Mode diubah ke " + mode;
+    }
+
+    // Mengecek apakah alat sudah menembakkan UID ke Sheet Config (Polling)
+    function checkTempUid() {
+    const uid = getSheetByName("Config").getRange("B2").getValue();
+    return uid ? uid : "";
+}
+
+// Menyimpan data buku baru ke Sheet Buku
+function saveBukuBaru(judul, penulis) {
+    const configSheet = getSheetByName("Config");
+    const uid = configSheet.getRange("B2").getValue();
+    
+    if (!uid) throw new Error("UID belum didapatkan dari alat!");
+
+    const sheetBuku = getSheetByName("Buku");
+    // Menyimpan sesuai urutan kolom ERD: uid_buku, judul, penulis, status_tersedia [cite: 5]
+    sheetBuku.appendRow([uid, judul, penulis, true]); 
+
+    // Reset alat ke mode normal (IDLE) [cite: 10]
+    configSheet.getRange("A2").setValue("IDLE");
+    configSheet.getRange("B2").clearContent();
+    return "Buku berhasil ditambahkan!";
+}
+
+// Menyimpan data anggota baru ke Sheet Anggota
+function saveAnggotaBaru(nama, kelas) {
+    const configSheet = getSheetByName("Config");
+    const uid = configSheet.getRange("B2").getValue();
+    
+    if (!uid) throw new Error("UID belum didapatkan dari alat!");
+
+    const sheetAnggota = getSheetByName("Anggota");
+    // Menyimpan sesuai urutan kolom ERD: uid_anggota, nama, kelas, tanggal_daftar [cite: 5]
+    const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+    sheetAnggota.appendRow([uid, nama, kelas, timestamp]); 
+
+    // Reset alat ke mode normal (IDLE) [cite: 10]
+    configSheet.getRange("A2").setValue("IDLE");
+    configSheet.getRange("B2").clearContent();
+    return "Anggota berhasil ditambahkan!";
+}
+
+
