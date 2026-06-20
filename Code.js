@@ -15,16 +15,16 @@ function doPost(e) {
     try {
         const requestData = JSON.parse(e.postData.contents);
 
-        // Validasi Keamanan Token [cite: 3, 6]
+        // Validasi Keamanan Token
         if (requestData.token !== API_TOKEN) {
         return createResponse(output, "error", "Invalid token");
         }
 
-        // Pastikan action adalah "tap" [cite: 3]
-        if (requestData.action === "tap" && requestData.uid) {
-        return processTap(output, requestData.uid, requestData.tipe_tap);
+        // Pastikan action adalah "tap"
+        if (requestData.action === "tap") {
+        return processTap(output, requestData); // Passing seluruh requestData
         } else {
-        return createResponse(output, "error", "Action tidak dikenali atau UID kosong");
+        return createResponse(output, "error", "Action tidak dikenali");
         }
 
     } catch (error) {
@@ -32,25 +32,42 @@ function doPost(e) {
     }
 }
 
-// Logika pemrosesan tap berdasarkan State [cite: 3, 10]
-function processTap(output, uid, tipeTap) {
+// Logika pemrosesan tap berdasarkan State
+function processTap(output, requestData) {
     const configSheet = getSheetByName("Config");
-    // Mengambil status dari sel A2 [cite: 5]
     const modeAktif = configSheet.getRange("A2").getValue(); 
 
     if (modeAktif === "REG_MEMBER" || modeAktif === "REG_BOOK") {
-        // Mode Pendaftaran: Simpan UID ke temp_uid di sel B2 
-        configSheet.getRange("B2").setValue(uid);
-        configSheet.getRange("C2").setValue(new Date()); // Update waktu [cite: 5]
+        // Mode Pendaftaran: Butuh parameter 'uid' tunggal
+        if (!requestData.uid) return createResponse(output, "error", "UID kosong untuk pendaftaran");
         
+        configSheet.getRange("B2").setValue(requestData.uid);
+        configSheet.getRange("C2").setValue(new Date()); 
         return createResponse(output, "success", "saved_to_temp");
     } 
     else if (modeAktif === "IDLE") {
-        // Mode Transaksi Normal (Akan kita buat fiturnya di tahap selanjutnya) [cite: 3]
-        return createResponse(output, "success", "transaksi_diproses");
+        // Mode Transaksi Normal: Butuh uid_anggota, uid_buku, dan status
+        if (!requestData.uid_anggota || !requestData.uid_buku || !requestData.status) {
+        return createResponse(output, "error", "Data transaksi tidak lengkap");
+        }
+        return catatTransaksi(output, requestData.uid_anggota, requestData.uid_buku, requestData.status);
     }
     
     return createResponse(output, "error", "Mode tidak valid");
+}
+
+// Fungsi khusus mencatat riwayat peminjaman/pengembalian
+function catatTransaksi(output, uidAnggota, uidBuku, statusTransaksi) {
+    const sheetTransaksi = getSheetByName("Transaksi");
+    
+    // Membuat ID Transaksi unik berbasis waktu
+    const idTransaksi = "TRX-" + new Date().getTime(); 
+    const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+
+    // Menyimpan sesuai struktur kolom ERD Sheet Transaksi
+    sheetTransaksi.appendRow([idTransaksi, timestamp, uidAnggota, uidBuku, statusTransaksi]);
+
+    return createResponse(output, "success", "transaksi_berhasil");
 }
 
 // Fungsi bantuan untuk memformat JSON Output
