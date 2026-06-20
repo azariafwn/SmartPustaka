@@ -163,3 +163,19 @@ function saveAnggotaBaru(nama, kelas) {
 }
 
 
+// --- FUNGSI MANAJEMEN DATA (DELETE) ---
+
+// Menghapus baris transaksi berdasarkan id_transaksi [cite: 9, 11]
+function hapusDataTransaksi(idTransaksi) {
+    const sheet = getSheetByName("Transaksi");
+    const data = sheet.getDataRange().getValues();
+    
+    // Looping untuk mencari ID yang cocok
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === idTransaksi) {
+        sheet.deleteRow(i + 1); // +1 karena array mulai dari 0, baris Sheet mulai dari 1
+        return "Data transaksi berhasil dihapus.";
+        }
+    }
+    throw new Error("ID Transaksi tidak ditemukan di database.");
+}
