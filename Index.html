@@ -6,8 +6,8 @@
         <title>SmartPustaka Admin</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     </head>
-    
-    
+
+
     <body class="bg-light">
 
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -49,7 +49,10 @@
                 <h4>Katalog Buku</h4>
                 <button class="btn btn-primary" onclick="bukaModal('REG_BOOK')">+ Tambah Buku</button>
                 </div>
-                <table class="table table-striped table-hover mt-3"><thead class="table-dark"><tr><th>UID Buku</th><th>Judul</th><th>Penulis</th><th>Status Tersedia</th></tr></thead><tbody id="tbody-buku"><tr><td colspan="4" class="text-center">Memuat data...</td></tr></tbody></table>
+                <table class="table table-striped table-hover mt-3">
+                <thead class="table-dark"><tr><th>UID Buku</th><th>Judul</th><th>Penulis</th><th>Status Tersedia</th></tr></thead>
+                <tbody id="tbody-buku"><tr><td colspan="4" class="text-center">Memuat data...</td></tr></tbody>
+                </table>
             </div>
 
             <div class="tab-pane fade" id="anggota" role="tabpanel">
@@ -57,7 +60,10 @@
                 <h4>Daftar Anggota</h4>
                 <button class="btn btn-primary" onclick="bukaModal('REG_MEMBER')">+ Tambah Anggota</button>
                 </div>
-                <table class="table table-striped table-hover mt-3"><thead class="table-dark"><tr><th>UID Anggota</th><th>Nama</th><th>Kelas</th><th>Tanggal Daftar</th></tr></thead><tbody id="tbody-anggota"><tr><td colspan="4" class="text-center">Memuat data...</td></tr></tbody></table>
+                <table class="table table-striped table-hover mt-3">
+                <thead class="table-dark"><tr><th>UID Anggota</th><th>Nama</th><th>Kelas</th><th>Tanggal Daftar</th></tr></thead>
+                <tbody id="tbody-anggota"><tr><td colspan="4" class="text-center">Memuat data...</td></tr></tbody>
+                </table>
             </div>
             </div>
         </div>
@@ -100,7 +106,7 @@
             let pollingInterval;
             const modalDaftar = new bootstrap.Modal(document.getElementById('modalDaftar'));
 
-            // Fungsi Render Tabel (Sama seperti sebelumnya)
+            // Fungsi Render Tabel Umum (Buku & Anggota)
             function renderTable(dataArray, tbodyId, columnCount) {
             const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
@@ -115,39 +121,49 @@
             });
             }
 
-            function loadAllData() {
-            // Load Transaksi dengan tombol Hapus 
-            google.script.run.withSuccessHandler(data => {
-                const tbody = document.getElementById('tbody-transaksi');
-                tbody.innerHTML = '';
-                if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center">Tidak ada data</td></tr>`;
+            // Fungsi Render Tabel Khusus Transaksi (Ada Tombol Hapus)
+            function renderTableTransaksi(dataArray, tbodyId, columnCount) {
+            const tbody = document.getElementById(tbodyId);
+            tbody.innerHTML = '';
+            if (dataArray.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${columnCount}" class="text-center">Tidak ada data</td></tr>`;
                 return;
-                }
-                data.forEach(row => {
+            }
+            dataArray.forEach(row => {
                 let tr = document.createElement('tr');
                 row.forEach(cell => { let td = document.createElement('td'); td.textContent = cell; tr.appendChild(td); });
                 
-                // Tambahkan tombol Hapus
-                let tdAction = document.createElement('td');
-                tdAction.innerHTML = `<button class="btn btn-danger btn-sm" onclick="hapusTransaksiUI('${row[0]}')">Hapus</button>`;
-                tr.appendChild(tdAction);
+                // Buat sel untuk tombol Aksi
+                let tdAksi = document.createElement('td');
+                let idTransaksi = row[0]; // Kolom pertama selalu ID Transaksi
+                tdAksi.innerHTML = `<button class="btn btn-danger btn-sm" onclick="konfirmasiHapus('${idTransaksi}')">Hapus</button>`;
+                tr.appendChild(tdAksi);
                 
                 tbody.appendChild(tr);
-                });
-            }).getTableData('Transaksi');
+            });
+            }
 
-            // Load Buku dan Anggota secara normal
+            // Fungsi Memuat Semua Data
+            function loadAllData() {
+            // Panggil fungsi khusus transaksi (dengan 6 kolom)
+            google.script.run.withSuccessHandler(data => renderTableTransaksi(data, 'tbody-transaksi', 6)).getTableData('Transaksi');
+            
             google.script.run.withSuccessHandler(data => renderTable(data, 'tbody-buku', 4)).getTableData('Buku');
             google.script.run.withSuccessHandler(data => renderTable(data, 'tbody-anggota', 4)).getTableData('Anggota');
             }
+            document.addEventListener("DOMContentLoaded", loadAllData);
 
-            // Fungsi memicu penghapusan data
-            function hapusTransaksiUI(idTransaksi) {
-            if(confirm("Yakin ingin menghapus transaksi " + idTransaksi + "?")) { // Konfirmasi penghapusan 
-                google.script.run.withSuccessHandler(pesan => {
-                alert(pesan);
-                loadAllData(); // Memuat ulang tabel tanpa baris tersebut [cite: 9, 11]
+            // --- LOGIKA HAPUS DATA ---
+            
+            function konfirmasiHapus(idTransaksi) {
+            // Meminta konfirmasi sebelum menghapus
+            if (confirm("Apakah Anda yakin ingin menghapus transaksi: " + idTransaksi + "?")) {
+                // Panggil fungsi backend
+                google.script.run.withSuccessHandler(pesanSukses => {
+                alert(pesanSukses);
+                loadAllData(); // Refresh tabel setelah dihapus [cite: 9, 11]
+                }).withFailureHandler(err => {
+                alert("Gagal menghapus: " + err.message);
                 }).hapusDataTransaksi(idTransaksi);
             }
             }
@@ -173,8 +189,8 @@
             }
 
             function tutupModal() {
-            clearInterval(pollingInterval); // Hentikan pengecekan jika batal
-            google.script.run.setSystemMode('IDLE'); // Kembalikan alat ke mode normal
+            clearInterval(pollingInterval); 
+            google.script.run.setSystemMode('IDLE'); 
             modalDaftar.hide();
             }
 
@@ -187,18 +203,15 @@
                 return;
             }
 
-            // Sembunyikan tombol, tampilkan animasi loading
             document.getElementById('btnMulaiScan').classList.add('d-none');
             document.getElementById('statusTunggu').classList.remove('d-none');
 
-            // Ubah mode di Backend
             google.script.run.withSuccessHandler(() => {
-                // Mulai polling mengecek UID setiap 2 detik
                 pollingInterval = setInterval(() => {
                 google.script.run.withSuccessHandler(uidTerdeteksi => {
                     if(uidTerdeteksi !== "") {
-                    clearInterval(pollingInterval); // Hentikan polling
-                    simpanDataKeDatabase(val1, val2); // Eksekusi penyimpanan
+                    clearInterval(pollingInterval); 
+                    simpanDataKeDatabase(val1, val2); 
                     }
                 }).checkTempUid();
                 }, 2000);
@@ -216,13 +229,13 @@
             function suksesBuku(pesan) {
             alert(pesan);
             tutupModal();
-            loadAllData(); // Refresh tabel otomatis
+            loadAllData(); 
             }
 
             function suksesAnggota(pesan) {
             alert(pesan);
             tutupModal();
-            loadAllData(); // Refresh tabel otomatis
+            loadAllData(); 
             }
         </script>
     </body>
