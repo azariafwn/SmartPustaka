@@ -179,3 +179,27 @@ function hapusDataTransaksi(idTransaksi) {
     }
     throw new Error("ID Transaksi tidak ditemukan di database.");
 }
+
+function hapusDataBuku(uidBuku) {
+    const sheet = getSheetByName("Buku");
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === uidBuku) {
+        sheet.deleteRow(i + 1); 
+        return "Data buku berhasil dihapus.";
+        }
+    }
+    throw new Error("UID Buku tidak ditemukan di database.");
+}
+
+function hapusDataAnggota(uidAnggota) {
+    const sheet = getSheetByName("Anggota");
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === uidAnggota) {
+        sheet.deleteRow(i + 1); 
+        return "Data anggota berhasil dihapus.";
+        }
+    }
+    throw new Error("UID Anggota tidak ditemukan di database.");
+}

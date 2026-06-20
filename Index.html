@@ -7,7 +7,6 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     </head>
 
-
     <body class="bg-light">
 
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -18,7 +17,6 @@
         </nav>
 
         <div class="container-fluid container-md mt-4 bg-white p-3 p-md-4 rounded shadow-sm">
-            
             <ul class="nav nav-tabs flex-nowrap overflow-auto" id="myTab" role="tablist" style="white-space: nowrap;">
             <li class="nav-item" role="presentation"><button class="nav-link active" id="transaksi-tab" data-bs-toggle="tab" data-bs-target="#transaksi" type="button" role="tab">Transaksi</button></li>
             <li class="nav-item" role="presentation"><button class="nav-link" id="buku-tab" data-bs-toggle="tab" data-bs-target="#buku" type="button" role="tab">Data Buku</button></li>
@@ -26,24 +24,14 @@
             </ul>
 
             <div class="tab-content mt-3" id="myTabContent">
-            
             <div class="tab-pane fade show active" id="transaksi" role="tabpanel">
                 <h4 class="mb-3">Riwayat Transaksi Aktif</h4>
                 <div class="table-responsive">
                 <table class="table table-striped table-hover align-middle text-nowrap">
                     <thead class="table-dark">
-                    <tr>
-                        <th>ID Transaksi</th>
-                        <th>Waktu</th>
-                        <th>UID Anggota</th>
-                        <th>UID Buku</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
+                    <tr><th>ID Transaksi</th><th>Waktu</th><th>UID Anggota</th><th>UID Buku</th><th>Status</th><th>Aksi</th></tr>
                     </thead>
-                    <tbody id="tbody-transaksi">
-                    <tr><td colspan="6" class="text-center">Memuat data...</td></tr>
-                    </tbody>
+                    <tbody id="tbody-transaksi"><tr><td colspan="6" class="text-center">Memuat data...</td></tr></tbody>
                 </table>
                 </div>
             </div>
@@ -56,11 +44,9 @@
                 <div class="table-responsive">
                 <table class="table table-striped table-hover align-middle text-nowrap">
                     <thead class="table-dark">
-                    <tr><th>UID Buku</th><th>Judul</th><th>Penulis</th><th>Status Tersedia</th></tr>
+                    <tr><th>UID Buku</th><th>Judul</th><th>Penulis</th><th>Status Tersedia</th><th>Aksi</th></tr>
                     </thead>
-                    <tbody id="tbody-buku">
-                    <tr><td colspan="4" class="text-center">Memuat data...</td></tr>
-                    </tbody>
+                    <tbody id="tbody-buku"><tr><td colspan="5" class="text-center">Memuat data...</td></tr></tbody>
                 </table>
                 </div>
             </div>
@@ -73,15 +59,12 @@
                 <div class="table-responsive">
                 <table class="table table-striped table-hover align-middle text-nowrap">
                     <thead class="table-dark">
-                    <tr><th>UID Anggota</th><th>Nama</th><th>Kelas</th><th>Tanggal Daftar</th></tr>
+                    <tr><th>UID Anggota</th><th>Nama</th><th>Kelas</th><th>Tanggal Daftar</th><th>Aksi</th></tr>
                     </thead>
-                    <tbody id="tbody-anggota">
-                    <tr><td colspan="4" class="text-center">Memuat data...</td></tr>
-                    </tbody>
+                    <tbody id="tbody-anggota"><tr><td colspan="5" class="text-center">Memuat data...</td></tr></tbody>
                 </table>
                 </div>
             </div>
-
             </div>
         </div>
 
@@ -103,7 +86,6 @@
                     <input type="text" class="form-control" id="inputVal2" required>
                     </div>
                 </form>
-                
                 <div id="statusTunggu" class="alert alert-warning text-center mt-3 d-none">
                     <div class="spinner-border spinner-border-sm" role="status"></div>
                     <span class="ms-2">Silakan tap stiker/kartu...</span>
@@ -123,21 +105,8 @@
             let pollingInterval;
             const modalDaftar = new bootstrap.Modal(document.getElementById('modalDaftar'));
 
-            function renderTable(dataArray, tbodyId, columnCount) {
-            const tbody = document.getElementById(tbodyId);
-            tbody.innerHTML = '';
-            if (dataArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${columnCount}" class="text-center text-muted">Tidak ada data</td></tr>`;
-                return;
-            }
-            dataArray.forEach(row => {
-                let tr = document.createElement('tr');
-                row.forEach(cell => { let td = document.createElement('td'); td.textContent = cell; tr.appendChild(td); });
-                tbody.appendChild(tr);
-            });
-            }
-
-            function renderTableTransaksi(dataArray, tbodyId, columnCount) {
+            // Fungsi Render Tabel Universal dengan Aksi
+            function renderTableWithAction(dataArray, tbodyId, columnCount, functionName) {
             const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
             if (dataArray.length === 0) {
@@ -148,33 +117,44 @@
                 let tr = document.createElement('tr');
                 row.forEach(cell => { let td = document.createElement('td'); td.textContent = cell; tr.appendChild(td); });
                 
+                // Sel Aksi Dinamis
                 let tdAksi = document.createElement('td');
-                let idTransaksi = row[0]; 
-                tdAksi.innerHTML = `<button class="btn btn-danger btn-sm" onclick="konfirmasiHapus('${idTransaksi}')">Hapus</button>`;
+                let idPrimary = row[0]; // UID atau ID Transaksi selalu di indeks 0
+                tdAksi.innerHTML = `<button class="btn btn-danger btn-sm" onclick="${functionName}('${idPrimary}')">Hapus</button>`;
                 tr.appendChild(tdAksi);
                 
                 tbody.appendChild(tr);
             });
             }
 
+            // Fungsi Memuat Semua Data
             function loadAllData() {
-            google.script.run.withSuccessHandler(data => renderTableTransaksi(data, 'tbody-transaksi', 6)).getTableData('Transaksi');
-            google.script.run.withSuccessHandler(data => renderTable(data, 'tbody-buku', 4)).getTableData('Buku');
-            google.script.run.withSuccessHandler(data => renderTable(data, 'tbody-anggota', 4)).getTableData('Anggota');
+            google.script.run.withSuccessHandler(data => renderTableWithAction(data, 'tbody-transaksi', 6, 'konfirmasiHapusTransaksi')).getTableData('Transaksi');
+            google.script.run.withSuccessHandler(data => renderTableWithAction(data, 'tbody-buku', 5, 'konfirmasiHapusBuku')).getTableData('Buku');
+            google.script.run.withSuccessHandler(data => renderTableWithAction(data, 'tbody-anggota', 5, 'konfirmasiHapusAnggota')).getTableData('Anggota');
             }
             document.addEventListener("DOMContentLoaded", loadAllData);
 
-            function konfirmasiHapus(idTransaksi) {
-            if (confirm("Hapus transaksi: " + idTransaksi + "?")) {
-                google.script.run.withSuccessHandler(pesanSukses => {
-                alert(pesanSukses);
-                loadAllData(); 
-                }).withFailureHandler(err => {
-                alert("Gagal menghapus: " + err.message);
-                }).hapusDataTransaksi(idTransaksi);
+            // --- LOGIKA HAPUS DATA ---
+            function konfirmasiHapusTransaksi(id) {
+            if (confirm("Hapus transaksi: " + id + "?")) {
+                google.script.run.withSuccessHandler(res => { alert(res); loadAllData(); }).withFailureHandler(err => alert(err.message)).hapusDataTransaksi(id);
             }
             }
 
+            function konfirmasiHapusBuku(id) {
+            if (confirm("Hapus data buku dengan UID: " + id + "?")) {
+                google.script.run.withSuccessHandler(res => { alert(res); loadAllData(); }).withFailureHandler(err => alert(err.message)).hapusDataBuku(id);
+            }
+            }
+
+            function konfirmasiHapusAnggota(id) {
+            if (confirm("Hapus anggota dengan UID: " + id + "?")) {
+                google.script.run.withSuccessHandler(res => { alert(res); loadAllData(); }).withFailureHandler(err => alert(err.message)).hapusDataAnggota(id);
+            }
+            }
+
+            // --- LOGIKA PENDAFTARAN ---
             function bukaModal(mode) {
             modePendaftaran = mode;
             document.getElementById('formPendaftaran').reset();
@@ -203,44 +183,21 @@
             const val1 = document.getElementById('inputVal1').value;
             const val2 = document.getElementById('inputVal2').value;
             
-            if(!val1 || !val2) {
-                alert("Harap isi semua kolom formulir!");
-                return;
-            }
+            if(!val1 || !val2) { alert("Harap isi semua kolom formulir!"); return; }
 
             document.getElementById('btnMulaiScan').classList.add('d-none');
             document.getElementById('statusTunggu').classList.remove('d-none');
 
             google.script.run.withSuccessHandler(() => {
                 pollingInterval = setInterval(() => {
-                google.script.run.withSuccessHandler(uidTerdeteksi => {
-                    if(uidTerdeteksi !== "") {
+                google.script.run.withSuccessHandler(uid => {
+                    if(uid !== "") {
                     clearInterval(pollingInterval); 
-                    simpanDataKeDatabase(val1, val2); 
+                    modePendaftaran === 'REG_BOOK' ? google.script.run.withSuccessHandler(res => { alert(res); tutupModal(); loadAllData(); }).saveBukuBaru(val1, val2) : google.script.run.withSuccessHandler(res => { alert(res); tutupModal(); loadAllData(); }).saveAnggotaBaru(val1, val2);
                     }
                 }).checkTempUid();
                 }, 2000);
             }).setSystemMode(modePendaftaran);
-            }
-
-            function simpanDataKeDatabase(val1, val2) {
-            if(modePendaftaran === 'REG_BOOK') {
-                google.script.run.withSuccessHandler(suksesBuku).saveBukuBaru(val1, val2);
-            } else {
-                google.script.run.withSuccessHandler(suksesAnggota).saveAnggotaBaru(val1, val2);
-            }
-            }
-
-            function suksesBuku(pesan) {
-            alert(pesan);
-            tutupModal();
-            loadAllData(); 
-            }
-
-            function suksesAnggota(pesan) {
-            alert(pesan);
-            tutupModal();
-            loadAllData(); 
             }
         </script>
     </body>
