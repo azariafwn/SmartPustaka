@@ -76,3 +76,19 @@ function doGet(e) {
         .setTitle('SmartPustaka Admin') // Mengubah judul tab browser
         .addMetaTag('viewport', 'width=device-width, initial-scale=1'); // Mendukung responsivitas di HP
 }
+
+// --- FUNGSI JEMBATAN DATA KE FRONTEND ---
+
+// Fungsi untuk mengambil data dari Sheet tertentu (dipanggil oleh HTML)
+function getTableData(sheetName) {
+    const sheet = getSheetByName(sheetName);
+    if (!sheet) return [];
+    
+    const data = sheet.getDataRange().getDisplayValues();
+    // Hapus baris pertama (header) agar tidak ikut ter-render sebagai data
+    if (data.length > 1) {
+        data.shift();
+        return data;
+    }
+    return []; // Kembalikan array kosong jika sheet hanya berisi header
+}
