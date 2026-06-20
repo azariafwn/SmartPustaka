@@ -17,59 +17,76 @@
             </div>
         </nav>
 
-        <div class="container mt-4 bg-white p-4 rounded shadow-sm">
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <div class="container-fluid container-md mt-4 bg-white p-3 p-md-4 rounded shadow-sm">
+            
+            <ul class="nav nav-tabs flex-nowrap overflow-auto" id="myTab" role="tablist" style="white-space: nowrap;">
             <li class="nav-item" role="presentation"><button class="nav-link active" id="transaksi-tab" data-bs-toggle="tab" data-bs-target="#transaksi" type="button" role="tab">Transaksi</button></li>
             <li class="nav-item" role="presentation"><button class="nav-link" id="buku-tab" data-bs-toggle="tab" data-bs-target="#buku" type="button" role="tab">Data Buku</button></li>
             <li class="nav-item" role="presentation"><button class="nav-link" id="anggota-tab" data-bs-toggle="tab" data-bs-target="#anggota" type="button" role="tab">Data Anggota</button></li>
             </ul>
 
             <div class="tab-content mt-3" id="myTabContent">
+            
             <div class="tab-pane fade show active" id="transaksi" role="tabpanel">
-                <h4>Riwayat Transaksi Aktif</h4>
-                <table class="table table-striped table-hover mt-3">
-                <thead class="table-dark">
+                <h4 class="mb-3">Riwayat Transaksi Aktif</h4>
+                <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle text-nowrap">
+                    <thead class="table-dark">
                     <tr>
-                    <th>ID Transaksi</th>
-                    <th>Waktu</th>
-                    <th>UID Anggota</th>
-                    <th>UID Buku</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
+                        <th>ID Transaksi</th>
+                        <th>Waktu</th>
+                        <th>UID Anggota</th>
+                        <th>UID Buku</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
-                </thead>
-                <tbody id="tbody-transaksi">
+                    </thead>
+                    <tbody id="tbody-transaksi">
                     <tr><td colspan="6" class="text-center">Memuat data...</td></tr>
-                </tbody>
+                    </tbody>
                 </table>
+                </div>
             </div>
 
             <div class="tab-pane fade" id="buku" role="tabpanel">
-                <div class="d-flex justify-content-between align-items-center">
-                <h4>Katalog Buku</h4>
-                <button class="btn btn-primary" onclick="bukaModal('REG_BOOK')">+ Tambah Buku</button>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
+                <h4 class="mb-0">Katalog Buku</h4>
+                <button class="btn btn-primary w-100 w-md-auto" onclick="bukaModal('REG_BOOK')">+ Tambah Buku</button>
                 </div>
-                <table class="table table-striped table-hover mt-3">
-                <thead class="table-dark"><tr><th>UID Buku</th><th>Judul</th><th>Penulis</th><th>Status Tersedia</th></tr></thead>
-                <tbody id="tbody-buku"><tr><td colspan="4" class="text-center">Memuat data...</td></tr></tbody>
+                <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle text-nowrap">
+                    <thead class="table-dark">
+                    <tr><th>UID Buku</th><th>Judul</th><th>Penulis</th><th>Status Tersedia</th></tr>
+                    </thead>
+                    <tbody id="tbody-buku">
+                    <tr><td colspan="4" class="text-center">Memuat data...</td></tr>
+                    </tbody>
                 </table>
+                </div>
             </div>
 
             <div class="tab-pane fade" id="anggota" role="tabpanel">
-                <div class="d-flex justify-content-between align-items-center">
-                <h4>Daftar Anggota</h4>
-                <button class="btn btn-primary" onclick="bukaModal('REG_MEMBER')">+ Tambah Anggota</button>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
+                <h4 class="mb-0">Daftar Anggota</h4>
+                <button class="btn btn-primary w-100 w-md-auto" onclick="bukaModal('REG_MEMBER')">+ Tambah Anggota</button>
                 </div>
-                <table class="table table-striped table-hover mt-3">
-                <thead class="table-dark"><tr><th>UID Anggota</th><th>Nama</th><th>Kelas</th><th>Tanggal Daftar</th></tr></thead>
-                <tbody id="tbody-anggota"><tr><td colspan="4" class="text-center">Memuat data...</td></tr></tbody>
+                <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle text-nowrap">
+                    <thead class="table-dark">
+                    <tr><th>UID Anggota</th><th>Nama</th><th>Kelas</th><th>Tanggal Daftar</th></tr>
+                    </thead>
+                    <tbody id="tbody-anggota">
+                    <tr><td colspan="4" class="text-center">Memuat data...</td></tr>
+                    </tbody>
                 </table>
+                </div>
             </div>
+
             </div>
         </div>
 
         <div class="modal fade" id="modalDaftar" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                 <h5 class="modal-title" id="modalTitle">Pendaftaran</h5>
@@ -89,12 +106,12 @@
                 
                 <div id="statusTunggu" class="alert alert-warning text-center mt-3 d-none">
                     <div class="spinner-border spinner-border-sm" role="status"></div>
-                    <span class="ms-2">Silakan tap stiker/kartu di alat pemindai...</span>
+                    <span class="ms-2">Silakan tap stiker/kartu...</span>
                 </div>
                 </div>
                 <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="tutupModal()">Batal</button>
-                <button type="button" class="btn btn-success" id="btnMulaiScan" onclick="mulaiScan()">Mulai Scan Kartu</button>
+                <button type="button" class="btn btn-secondary w-100 w-sm-auto mb-2 mb-sm-0" onclick="tutupModal()">Batal</button>
+                <button type="button" class="btn btn-success w-100 w-sm-auto" id="btnMulaiScan" onclick="mulaiScan()">Mulai Scan</button>
                 </div>
             </div>
             </div>
@@ -106,12 +123,11 @@
             let pollingInterval;
             const modalDaftar = new bootstrap.Modal(document.getElementById('modalDaftar'));
 
-            // Fungsi Render Tabel Umum (Buku & Anggota)
             function renderTable(dataArray, tbodyId, columnCount) {
             const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
             if (dataArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${columnCount}" class="text-center">Tidak ada data</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${columnCount}" class="text-center text-muted">Tidak ada data</td></tr>`;
                 return;
             }
             dataArray.forEach(row => {
@@ -121,21 +137,19 @@
             });
             }
 
-            // Fungsi Render Tabel Khusus Transaksi (Ada Tombol Hapus)
             function renderTableTransaksi(dataArray, tbodyId, columnCount) {
             const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
             if (dataArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${columnCount}" class="text-center">Tidak ada data</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${columnCount}" class="text-center text-muted">Tidak ada data</td></tr>`;
                 return;
             }
             dataArray.forEach(row => {
                 let tr = document.createElement('tr');
                 row.forEach(cell => { let td = document.createElement('td'); td.textContent = cell; tr.appendChild(td); });
                 
-                // Buat sel untuk tombol Aksi
                 let tdAksi = document.createElement('td');
-                let idTransaksi = row[0]; // Kolom pertama selalu ID Transaksi
+                let idTransaksi = row[0]; 
                 tdAksi.innerHTML = `<button class="btn btn-danger btn-sm" onclick="konfirmasiHapus('${idTransaksi}')">Hapus</button>`;
                 tr.appendChild(tdAksi);
                 
@@ -143,33 +157,24 @@
             });
             }
 
-            // Fungsi Memuat Semua Data
             function loadAllData() {
-            // Panggil fungsi khusus transaksi (dengan 6 kolom)
             google.script.run.withSuccessHandler(data => renderTableTransaksi(data, 'tbody-transaksi', 6)).getTableData('Transaksi');
-            
             google.script.run.withSuccessHandler(data => renderTable(data, 'tbody-buku', 4)).getTableData('Buku');
             google.script.run.withSuccessHandler(data => renderTable(data, 'tbody-anggota', 4)).getTableData('Anggota');
             }
             document.addEventListener("DOMContentLoaded", loadAllData);
 
-            // --- LOGIKA HAPUS DATA ---
-            
             function konfirmasiHapus(idTransaksi) {
-            // Meminta konfirmasi sebelum menghapus
-            if (confirm("Apakah Anda yakin ingin menghapus transaksi: " + idTransaksi + "?")) {
-                // Panggil fungsi backend
+            if (confirm("Hapus transaksi: " + idTransaksi + "?")) {
                 google.script.run.withSuccessHandler(pesanSukses => {
                 alert(pesanSukses);
-                loadAllData(); // Refresh tabel setelah dihapus [cite: 9, 11]
+                loadAllData(); 
                 }).withFailureHandler(err => {
                 alert("Gagal menghapus: " + err.message);
                 }).hapusDataTransaksi(idTransaksi);
             }
             }
 
-            // --- LOGIKA PENDAFTARAN ---
-            
             function bukaModal(mode) {
             modePendaftaran = mode;
             document.getElementById('formPendaftaran').reset();
@@ -199,7 +204,7 @@
             const val2 = document.getElementById('inputVal2').value;
             
             if(!val1 || !val2) {
-                alert("Harap isi semua kolom formulir terlebih dahulu!");
+                alert("Harap isi semua kolom formulir!");
                 return;
             }
 
